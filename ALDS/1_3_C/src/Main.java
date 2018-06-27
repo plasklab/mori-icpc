@@ -10,7 +10,7 @@ public class Main {
 	public void run() {
 		InputStreamReader isr = new InputStreamReader(System.in);
 		BufferedReader br = new BufferedReader(isr);
-		first = new DoublyLinkedList(-1);
+		first = new DoublyLinkedList();
 		last = first;
 		try {
 			int n = Integer.parseInt(br.readLine());
@@ -42,32 +42,45 @@ public class Main {
 			System.out.println(e);
 		}
 	}
-
 	public void insertHead(int n) {
-		if (first.num >= 0){
-			DoublyLinkedList dll = new DoublyLinkedList(n);
+		DoublyLinkedList dll = new DoublyLinkedList(n);
+		if (first.isGenerated()) {
+			// 要素がゼロ個の場合
+			first = dll;
+			last = first;
+		} else
+		if (first == last) {
+			// 要素が一つしかない場合
+			dll.setNext(last);
+			last.setBack(dll);
+			first = dll;
+		} else {
+			// 要素が複数個ある場合
 			dll.setNext(first);
 			first.setBack(dll);
 			first = dll;
-		} else {
-			first = new DoublyLinkedList(n);
-			last = first;
 		}
 	}
+
 	public void deleteKey(int n) {
 		DoublyLinkedList dll = first;
-		if (first.num == n) {
-			deleteFirst();
-			return;
-		}
-		while(dll != null) {
+		while (true) {
 			if (dll.num == n) {
-				if (dll.next != null) {
-					dll.next.setBack(dll.back);
+				if (dll == first) {
+					// 先頭要素の場合
+					deleteFirst();
+				} else
+				if (dll == last) {
+					// 終端要素の場合
+					deleteLast();
 				} else {
-					last = dll.back;
+					// 先頭でも最後でもない要素の場合
+					dll.next.setBack(dll.back);
+					dll.back.setNext(dll.next);
 				}
-				dll.back.setNext(dll.next);
+				return;
+			}
+			if (dll  == last) {
 				return;
 			}
 			dll = dll.next;
@@ -75,19 +88,23 @@ public class Main {
 	}
 	public void deleteFirst() {
 		if (first.next != null) {
+			first.next.setBack(null);
 			first = first.next;
 		} else {
-			first = new DoublyLinkedList(-1);
+			// 要素が一つしかない場合
+			first = new DoublyLinkedList();
+			last = first;
 		}
+
 	}
 	public void deleteLast() {
-		DoublyLinkedList dll = first;
-		while (dll.next != null)
-			dll = dll.next;
-		if (dll != first) {
-			dll.back.setNext(null);
+		if (last.back != null) {
+			last.back.setNext(null);
+			last = last.back;
 		} else {
-			first = new DoublyLinkedList(-1);
+			// 要素が一つしかない場合
+			last = new DoublyLinkedList();
+			first = last;
 		}
 	}
 	public void printList() {
@@ -104,9 +121,17 @@ public class Main {
 
 class DoublyLinkedList {
 	int num;
+	boolean exist;
 	DoublyLinkedList next,back;
+	DoublyLinkedList() {
+		exist = false;
+	}
 	DoublyLinkedList(int n) {
 		num = n;
+		exist = true;
+	}
+	public boolean isGenerated() {
+		return !exist;
 	}
 	public void setNext(DoublyLinkedList dll) {
 		next = dll;
